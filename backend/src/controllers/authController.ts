@@ -69,8 +69,11 @@ export const handleAdaptiveLogin = async (req: Request, res: Response): Promise<
 
         // 2. Mobile Time-Fence Restriction Check
         if (environment.deviceType === 'mobile') {
-            const istString = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-            const currentIstHour = new Date(istString).getHours();
+            const currentUtcTime = new Date();
+            // Offset calculation to derive Indian Standard Time (UTC +5:30) precisely
+            const istOffsetMs = (5 * 60 + 30) * 60 * 1000;
+            const istDate = new Date(currentUtcTime.getTime() + istOffsetMs);
+            const currentIstHour = istDate.getUTCHours();
 
             if (currentIstHour < 10 || currentIstHour >= 13) {
                 res.status(403).json({

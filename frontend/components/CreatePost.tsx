@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Image, Video, Send, Lock } from 'lucide-react';
+import { API_BASE_URL, getAuthHeaders } from '@/utils/api'; // FIXED: Imported centralized gateway routes
 
 export default function CreatePost({ onPostCreated }: { onPostCreated: () => void }) {
     const { user, token } = useAuth();
@@ -15,7 +16,6 @@ export default function CreatePost({ onPostCreated }: { onPostCreated: () => voi
     const friends = user.friendCount;
     const isLocked = friends === 0;
 
-    // Compute tier explanation text
     const getTierMessage = () => {
         if (friends === 0) return "🔒 Posting locked. Add a friend to unlock public spaces!";
         if (friends >= 10) return "✨ Elite Tier: Unlimited posting unlocked!";
@@ -27,12 +27,10 @@ export default function CreatePost({ onPostCreated }: { onPostCreated: () => voi
         setError('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/posts', {
+            // FIXED: Replaced hardcoded localhost reference with environmental API gateway path
+            const res = await fetch(`${API_BASE_URL}/posts`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: getAuthHeaders(), // FIXED: Automated passing authenticated token strings via global helpers
                 body: JSON.stringify({ caption, mediaUrl, mediaType })
             });
 
@@ -44,7 +42,7 @@ export default function CreatePost({ onPostCreated }: { onPostCreated: () => voi
 
             setCaption('');
             setMediaUrl('');
-            onPostCreated(); // Refresh feed timeline
+            onPostCreated();
         } catch (err: any) {
             setError(err.message);
         }
@@ -70,13 +68,13 @@ export default function CreatePost({ onPostCreated }: { onPostCreated: () => voi
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} className="space-y-3">
-          <textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder={`What's on your mind, ${user.username}?`}
-              className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none h-20"
-              required
-          />
+                    <textarea
+                        value={caption}
+                        onChange={(e) => setCaption(e.target.value)}
+                        placeholder={`What's on your mind, ${user.username}?`}
+                        className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none h-20"
+                        required
+                    />
 
                     <div className="grid grid-cols-3 gap-2 items-center">
                         <input

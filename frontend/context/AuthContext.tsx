@@ -22,6 +22,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// FIXED: Clean client-side JWT parser logic to evaluate expiration claims without massive dependencies
+const isTokenExpired = (tokenString: string): boolean => {
+    try {
+        const payloadBase64 = tokenString.split('.')[1];
+        if (!payloadBase64) return true;
+        const decodedJson = JSON.parse(window.atob(payloadBase64));
+        if (!decodedJson.exp) return false;
+
+        const currentTimestampSec = Math.floor(Date.now() / 1000);
+        return decodedJson.exp < currentTimestampSec;
+    } catch {
+        return true; // Assume corrupted sessions are expired
+    }
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -29,15 +44,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
+
         if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
+            // FIXED: Intercept local mount state and invalidate profile maps if session lifecycle expired
+            if (isTokenExpired(storedToken)) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                setToken(null);
+                setUser(null);
+            } else {
+                setToken(storedToken);
+                setUser(JSON.parse(storedUser));
+            }
         }
     }, []);
 
     const updateUser = (newUser: User) => {
         setUser(newUser);
-        localStorage.setItem('user', JSON.stringify(newUser)); // Update local storage too!
+        localStorage.setItem('user', JSON.stringify(newUser));
     };
 
     const login = (newToken: string, newUser: User) => {

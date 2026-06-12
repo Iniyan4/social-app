@@ -30,7 +30,7 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>({
     username: { type: String, required: true, unique: true, trim: true },
     email: { type: String, required: true, unique: true, trim: true, lowercase: true },
-    phoneNumber: { type: String, sparse: true, trim: true }, // sparse allows multiple null/empty values
+    phoneNumber: { type: String, required: true, unique: true, trim: true }, // FIXED: Enforced matching registration requirement
     passwordHash: { type: String, required: true },
     friendCount: { type: Number, default: 0 },
     lastPasswordResetRequest: { type: Date },

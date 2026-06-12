@@ -11,13 +11,21 @@ import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import languageRoutes from './routes/languageRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
-import {User} from "./models/User.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/social_app_db';
 
-app.use(cors());
+// 2. FIXED: Restricted CORS configuration to safe origins instead of permissive defaults
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'http://localhost:5000'];
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
+
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
@@ -27,21 +35,12 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/profile', profileRoutes);
 
-
 // Establish MongoDB Connection
 mongoose.connect(MONGODB_URI)
-    .then(async () => {
+    .then(() => {
         console.log('🍃 Connected to MongoDB via Compass successfully!');
-
-        // SELF HEALING HISTORIC DATA MIGRATION
-        const historicFallbackDate = new Date('2026-01-01T00:00:00.000Z');
-        const result = await User.updateMany(
-            { createdAt: { $exists: false } },
-            { $set: { createdAt: historicFallbackDate } }
-        );
-        if (result.modifiedCount > 0) {
-            console.log(`🔧 Data Migration Engine: Patched ${result.modifiedCount} historic profiles with standard fallback join dates.`);
-        }
+        // NOTE: Historic data migration engine has been decoupled from app startup process
+        // to support multi-instance horizontal scaling without concurrency collision.
     })
     .catch((err) => console.error('❌ MongoDB connection error:', err));
 

@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx tsx watch src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
