@@ -10,13 +10,16 @@ export default function PointsPanel({ onTransactionComplete }: { onTransactionCo
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleTransfer = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/questions/transfer-points', {
+            const res = await fetch(`${API_BASE_URL}/questions/transfer-points`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ recipientUsername: recipient, pointsToTransfer: points })
@@ -43,8 +46,8 @@ export default function PointsPanel({ onTransactionComplete }: { onTransactionCo
                     <Coins size={14} className="text-yellow-500" /> Reward Vault
                 </h4>
                 <span className="bg-yellow-50 border border-yellow-200 rounded-full px-2.5 py-0.5 text-xs font-bold text-yellow-700">
-          {user.rewardPoints || 0} Points
-        </span>
+                    {user.rewardPoints || 0} Points
+                </span>
             </div>
 
             <form onSubmit={handleTransfer} className="space-y-3">

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import {AuthProvider, useAuth} from '@/context/AuthContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ShieldCheck, Clock, Zap, Star, ShieldAlert, Loader2 } from 'lucide-react';
 
 // 1. Core Billing Interface separated to safely read Context values during production build tracking
@@ -10,6 +10,9 @@ function BillingPageContent() {
     const [loading, setLoading] = useState<string | null>(null);
     const [error, setError] = useState('');
     const [isWindowOpen, setIsWindowOpen] = useState(true);
+
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
         // Basic frontend check for current time mapping guidelines helper notification text display
@@ -27,7 +30,7 @@ function BillingPageContent() {
         setError('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/subscriptions/checkout', {
+            const res = await fetch(`${API_BASE_URL}/subscriptions/checkout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ plan })

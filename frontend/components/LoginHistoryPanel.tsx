@@ -7,15 +7,18 @@ export default function LoginHistoryPanel() {
     const { token } = useAuth();
     const [logs, setLogs] = useState<any[]>([]);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     useEffect(() => {
         if (!token) return;
-        fetch('http://localhost:5000/api/auth/login-history', {
+        fetch(`${API_BASE_URL}/auth/login-history`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setLogs(data); })
             .catch(err => console.error(err));
-    }, [token]);
+    }, [token, API_BASE_URL]);
 
     const getDeviceIcon = (type: string) => {
         if (type === 'mobile') return <Smartphone size={14} className="text-emerald-600" />;
@@ -41,8 +44,8 @@ export default function LoginHistoryPanel() {
                             </div>
                         </div>
                         <span className="text-[10px] text-slate-400 font-semibold shrink-0">
-              {new Date(log.loginTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
+                            {new Date(log.loginTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                     </div>
                 ))}
             </div>

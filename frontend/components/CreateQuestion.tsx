@@ -9,12 +9,15 @@ export default function CreateQuestion({ onQuestionCreated }: { onQuestionCreate
     const [body, setBody] = useState('');
     const [error, setError] = useState('');
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/questions', {
+            const res = await fetch(`${API_BASE_URL}/questions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,9 +68,9 @@ export default function CreateQuestion({ onQuestionCreated }: { onQuestionCreate
                 )}
 
                 <div className="flex justify-between items-center">
-          <span className="text-[10px] font-semibold uppercase text-slate-400">
-            Current Tier: <span className="text-indigo-600">{user?.subscriptionPlan || 'free'}</span>
-          </span>
+                    <span className="text-[10px] font-semibold uppercase text-slate-400">
+                        Current Tier: <span className="text-indigo-600">{user?.subscriptionPlan || 'free'}</span>
+                    </span>
                     <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
                         Ask Question <Send size={12} />
                     </button>

@@ -33,11 +33,14 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
     const [mobileOtpAttempt, setMobileOtpAttempt] = useState('');
     const [passMsg, setPassMsg] = useState('');
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleMetaSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setMetaMsg('');
         try {
-            const res = await fetch('http://localhost:5000/api/profile/meta-update', {
+            const res = await fetch(`${API_BASE_URL}/profile/meta-update`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ username, bio, avatarUrl })
@@ -58,7 +61,7 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
         e.preventDefault();
         setPhoneMsg('');
         try {
-            const res = await fetch('http://localhost:5000/api/profile/phone/request', {
+            const res = await fetch(`${API_BASE_URL}/profile/phone/request`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ newPhoneNumber: newPhone })
@@ -79,7 +82,7 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
         e.preventDefault();
         setPhoneMsg('');
         try {
-            const res = await fetch('http://localhost:5000/api/profile/phone/verify', {
+            const res = await fetch(`${API_BASE_URL}/profile/phone/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ otpToken: phoneOtp })
@@ -102,7 +105,7 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
         e.preventDefault();
         setPassMsg('');
         try {
-            const res = await fetch('http://localhost:5000/api/profile/password/request', {
+            const res = await fetch(`${API_BASE_URL}/profile/password/request`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ isForgotten, oldPassword, newPassword })
@@ -124,7 +127,7 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
         e.preventDefault();
         setPassMsg('');
         try {
-            const res = await fetch('http://localhost:5000/api/profile/password/verify', {
+            const res = await fetch(`${API_BASE_URL}/profile/password/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
@@ -155,13 +158,9 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex justify-end animate-fade-in">
-            {/* Backdrop Dismissal Barrier click interceptor */}
             <div className="absolute inset-0 -z-10" onClick={onClose} />
 
-            {/* Right-aligned sliding side drawer modal container */}
             <div className="w-full max-w-lg bg-slate-50 h-full shadow-2xl flex flex-col overflow-y-auto border-l border-slate-200">
-
-                {/* Overlay Sticky Header bar section */}
                 <div className="bg-white px-6 py-4 border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between">
                     <div>
                         <h3 className="text-base font-black text-slate-800 tracking-tight">My Settings</h3>
@@ -175,9 +174,7 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
                     </button>
                 </div>
 
-                {/* Main Settings Forms Column space wrap */}
                 <div className="p-6 space-y-6">
-
                     {/* CARD 1: GENERAL PERSONAL INFORMATION */}
                     <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
                         <h4 className="font-bold text-xs text-slate-800 flex items-center gap-2 mb-3.5 uppercase tracking-wider">
@@ -308,7 +305,6 @@ export default function UserProfilePanel({ isOpen, onClose }: ProfilePanelProps)
                             </form>
                         )}
                     </div>
-
                 </div>
             </div>
         </div>

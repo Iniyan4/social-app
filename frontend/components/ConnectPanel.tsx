@@ -14,19 +14,23 @@ export default function ConnectPanel() {
     const [people, setPeople] = useState<DiscoveryUser[]>([]);
     const [sentIds, setSentIds] = useState<string[]>([]);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     useEffect(() => {
-        if (!token) return;
-        fetch('http://localhost:5000/api/friends/discover', {
+        if (!token || !API_BASE_URL) return;
+
+        fetch(`${API_BASE_URL}/friends/discover`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => Array.isArray(data) && setPeople(data))
             .catch(err => console.error(err));
-    }, [token]);
+    }, [token, API_BASE_URL]);
 
     const handleAddFriend = async (recipientId: string) => {
         try {
-            const res = await fetch('http://localhost:5000/api/friends/request', {
+            const res = await fetch(`${API_BASE_URL}/friends/request`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,8 +70,8 @@ export default function ConnectPanel() {
 
                         {sentIds.includes(person._id) ? (
                             <span className="text-emerald-600 text-xs flex items-center gap-1 font-medium bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">
-                <CheckCircle2 size={12} /> Sent
-              </span>
+                                <CheckCircle2 size={12} /> Sent
+                            </span>
                         ) : (
                             <button
                                 onClick={() => handleAddFriend(person._id)}

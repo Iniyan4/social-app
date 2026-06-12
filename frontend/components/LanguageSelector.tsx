@@ -12,6 +12,9 @@ export default function LanguageSelector({ onLanguageUpdated }: { onLanguageUpda
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const languagesList = [
         { code: 'en', label: 'English' },
         { code: 'es', label: 'Español (Spanish)' },
@@ -19,7 +22,7 @@ export default function LanguageSelector({ onLanguageUpdated }: { onLanguageUpda
         { code: 'pt', label: 'Português (Portuguese)' },
         { code: 'zh', label: '中文 (Chinese)' },
         { code: 'fr', label: 'Français (French)' },
-        { code: 'ta', label: 'தமிழ் (Tamil)' },  // Added
+        { code: 'ta', label: 'தமிழ் (Tamil)' },
         { code: 'te', label: 'తెలుగు (Telugu)' }
     ];
 
@@ -30,7 +33,7 @@ export default function LanguageSelector({ onLanguageUpdated }: { onLanguageUpda
         setSelectedLang(langCode);
 
         try {
-            const res = await fetch('http://localhost:5000/api/languages/request-switch', {
+            const res = await fetch(`${API_BASE_URL}/languages/request-switch`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ targetLanguage: langCode })
@@ -54,7 +57,7 @@ export default function LanguageSelector({ onLanguageUpdated }: { onLanguageUpda
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/languages/verify-otp', {
+            const res = await fetch(`${API_BASE_URL}/languages/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ otpToken })

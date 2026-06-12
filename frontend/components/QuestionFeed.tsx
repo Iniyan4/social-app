@@ -10,9 +10,12 @@ export default function QuestionFeed({ questions, onVoteUpdate }: { questions: a
     const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
     const [answerText, setAnswerText] = useState('');
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleVote = async (qId: string, aId: string, action: 'upvote' | 'downvote') => {
         if (!token) return alert('Please sign in to vote.');
-        const res = await fetch(`http://localhost:5000/api/questions/${qId}/answers/${aId}/${action}`, {
+        const res = await fetch(`${API_BASE_URL}/questions/${qId}/answers/${aId}/${action}`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -23,7 +26,7 @@ export default function QuestionFeed({ questions, onVoteUpdate }: { questions: a
         e.preventDefault();
         if (!answerText.trim() || !user) return;
 
-        const res = await fetch(`http://localhost:5000/api/questions/${qId}/answer`, {
+        const res = await fetch(`${API_BASE_URL}/questions/${qId}/answer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,8 +49,8 @@ export default function QuestionFeed({ questions, onVoteUpdate }: { questions: a
                         <span className="text-xs font-bold text-slate-700">@{q.user?.username}</span>
                         {q.user?.subscriptionPlan && q.user.subscriptionPlan !== 'free' && (
                             <span className="bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full px-2 py-0.5 text-[9px] uppercase font-bold">
-                {q.user.subscriptionPlan}
-              </span>
+                                {q.user.subscriptionPlan}
+                            </span>
                         )}
                     </div>
                     <h4 className="text-sm font-bold text-slate-800 mb-1">{q.title}</h4>
@@ -79,8 +82,8 @@ export default function QuestionFeed({ questions, onVoteUpdate }: { questions: a
                                                 <ArrowBigUp size={20} fill={hasUpvoted ? 'currentColor' : 'none'} />
                                             </button>
                                             <span className="text-xs font-bold my-0.5 text-slate-700">
-                        {(ans.upvotes?.length || 0) - (ans.downvotes?.length || 0)}
-                      </span>
+                                                {(ans.upvotes?.length || 0) - (ans.downvotes?.length || 0)}
+                                            </span>
                                             <button
                                                 onClick={() => handleVote(q._id, ans._id, 'downvote')}
                                                 className={`hover:text-rose-600 transition ${hasDownvoted ? 'text-rose-600' : ''}`}
@@ -95,8 +98,8 @@ export default function QuestionFeed({ questions, onVoteUpdate }: { questions: a
                                                 <span className="font-bold text-slate-700">@{ans.username}</span>
                                                 {ans.hasAchievedBonus && (
                                                     <span className="bg-yellow-100 text-yellow-800 border border-yellow-200 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded-md">
-                            ★ Top Contributor
-                          </span>
+                                                        ★ Top Contributor
+                                                    </span>
                                                 )}
                                             </div>
                                             <p className="text-slate-600 leading-relaxed">{ans.text}</p>

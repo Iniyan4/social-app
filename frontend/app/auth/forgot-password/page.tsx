@@ -10,6 +10,9 @@ export default function ForgotPasswordPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleResetSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -18,7 +21,7 @@ export default function ForgotPasswordPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
+            const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identifier })
@@ -113,8 +116,8 @@ export default function ForgotPasswordPage() {
                         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center relative overflow-hidden group">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Your Temporary Password</p>
                             <span className="text-xl font-mono font-bold text-indigo-700 select-all tracking-wide block my-2">
-                {generatedPass}
-              </span>
+                                {generatedPass}
+                            </span>
                             <button
                                 onClick={handleCopyToClipboard}
                                 className="mt-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 mx-auto bg-white border border-slate-200 px-2.5 py-1 rounded-md shadow-sm transition"

@@ -14,6 +14,9 @@ function BillingSuccessContent() {
     // Prevent duplicate automated API requests running in React StrictMode
     const requestDispatched = useRef(false);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     useEffect(() => {
         const sessionId = searchParams.get('session_id');
         const plan = searchParams.get('plan');
@@ -31,7 +34,7 @@ function BillingSuccessContent() {
         const finalizeSubscription = async () => {
             try {
                 // Simulate/Forward payload tracking information to the backend endpoint
-                const res = await fetch('http://localhost:5000/api/subscriptions/success-webhook-sim', {
+                const res = await fetch(`${API_BASE_URL}/subscriptions/success-webhook-sim`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -61,7 +64,7 @@ function BillingSuccessContent() {
         };
 
         finalizeSubscription();
-    }, [searchParams, router]);
+    }, [searchParams, router, API_BASE_URL]);
 
     return (
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center animate-fade-in">

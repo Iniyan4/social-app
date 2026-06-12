@@ -30,9 +30,12 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
     const [inspectedProfile, setInspectedProfile] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleLike = async (postId: string) => {
         if (!token) return alert('Please sign in to interact with posts!');
-        const res = await fetch(`http://localhost:5000/api/posts/${postId}/like`, {
+        const res = await fetch(`${API_BASE_URL}/posts/${postId}/like`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -42,7 +45,7 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
     const triggerProfileInspection = async (targetUsername: string) => {
         if (!targetUsername) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/friends/profile/${targetUsername}`, {
+            const res = await fetch(`${API_BASE_URL}/friends/profile/${targetUsername}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -59,7 +62,7 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
         e.preventDefault();
         if (!commentText.trim() || !user) return;
 
-        const res = await fetch(`http://localhost:5000/api/posts/${postId}/comment`, {
+        const res = await fetch(`${API_BASE_URL}/posts/${postId}/comment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -75,7 +78,7 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
     };
 
     const handleShare = async (postId: string) => {
-        const res = await fetch(`http://localhost:5000/api/posts/${postId}/share`, { method: 'POST' });
+        const res = await fetch(`${API_BASE_URL}/posts/${postId}/share`, { method: 'POST' });
         if (res.ok) {
             navigator.clipboard.writeText(`${window.location.origin}/posts/${postId}`);
             alert('Link copied to clipboard! Share count updated.');
@@ -103,7 +106,6 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
                                         alt="Avatar Asset"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
-                                            // Fallback to text initials if image link breaks
                                             (e.target as HTMLElement).style.display = 'none';
                                         }}
                                     />
@@ -138,7 +140,6 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
 
                         {/* Interaction Utility Controls Action Strip */}
                         <div className="px-4 py-2.5 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-slate-500 text-xs font-semibold">
-                            {/* STYLED INTERACTIVE LIKE BUTTON */}
                             <button
                                 onClick={() => handleLike(post._id)}
                                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border transition ${
@@ -151,7 +152,6 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
                                 <span>Like ({post.likes?.length || 0})</span>
                             </button>
 
-                            {/* Comment Control */}
                             <button
                                 onClick={() => setActiveCommentBox(isCommentOpen ? null : post._id)}
                                 className={`flex items-center gap-1.5 hover:text-indigo-600 transition ${isCommentOpen ? 'text-indigo-600' : ''}`}
@@ -159,7 +159,6 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
                                 <MessageCircle size={16} /> Comment ({post.comments?.length || 0})
                             </button>
 
-                            {/* Share Control */}
                             <button
                                 onClick={() => handleShare(post._id)}
                                 className="flex items-center gap-1.5 hover:text-emerald-600 transition"
@@ -234,7 +233,6 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
                                 </div>
                             )}
 
-                            {/* Upgraded Date-Rendering Section with Fallback Safeguards */}
                             <div className="flex items-center gap-2 text-slate-600 font-medium bg-slate-50/50 p-2 rounded-xl border border-slate-100">
                                 <Calendar size={14} className="text-indigo-500" />
                                 <span>
@@ -242,7 +240,7 @@ export default function PublicFeed({ posts, onInteractionUpdate }: { posts: Post
                                     <strong className="text-slate-700">
                                         {inspectedProfile.dateRegistered
                                             ? new Date(inspectedProfile.dateRegistered).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-                                            : 'January 1, 2026' // Elegant explicit fallback protection
+                                            : 'January 1, 2026'
                                         }
                                     </strong>
                                 </span>

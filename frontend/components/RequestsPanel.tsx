@@ -7,10 +7,13 @@ export default function RequestsPanel({ onActionComplete }: { onActionComplete: 
     const { token } = useAuth();
     const [requests, setRequests] = useState<any[]>([]);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const fetchRequests = useCallback(async () => {
-        if (!token) return;
+        if (!token || !API_BASE_URL) return;
         try {
-            const res = await fetch('http://localhost:5000/api/friends/requests/pending', {
+            const res = await fetch(`${API_BASE_URL}/friends/requests/pending`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -18,7 +21,7 @@ export default function RequestsPanel({ onActionComplete }: { onActionComplete: 
         } catch (err) {
             console.error('Error fetching invitations:', err);
         }
-    }, [token]);
+    }, [token, API_BASE_URL]);
 
     useEffect(() => {
         fetchRequests();
@@ -33,7 +36,7 @@ export default function RequestsPanel({ onActionComplete }: { onActionComplete: 
 
     const handleRespond = async (friendshipId: string, action: 'accepted' | 'declined') => {
         try {
-            const res = await fetch('http://localhost:5000/api/friends/respond', {
+            const res = await fetch(`${API_BASE_URL}/friends/respond`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ friendshipId, action })
