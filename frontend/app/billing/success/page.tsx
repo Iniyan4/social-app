@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 
-export default function BillingSuccessPage() {
+// 1. Move your original logic into a dedicated inner component
+function BillingSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
@@ -63,47 +64,63 @@ export default function BillingSuccessPage() {
     }, [searchParams, router]);
 
     return (
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center animate-fade-in">
+            {status === 'verifying' && (
+                <div className="space-y-4">
+                    <Loader2 className="mx-auto text-indigo-600 animate-spin" size={48} />
+                    <h2 className="text-xl font-bold text-slate-800">Verifying Payment...</h2>
+                    <p className="text-sm text-slate-500">
+                        Securing your transaction assets and provisioning your workspace account.
+                    </p>
+                </div>
+            )}
+
+            {status === 'success' && (
+                <div className="space-y-4">
+                    <CheckCircle className="mx-auto text-emerald-500 animate-bounce" size={48} />
+                    <h2 className="text-2xl font-bold text-slate-800">Payment Successful!</h2>
+                    <p className="text-sm text-slate-500">
+                        Your workspace layout is updated. Redirecting to your main dashboard space...
+                    </p>
+                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-emerald-500 h-full animate-[loading-bar_3s_ease-out-forwards]" style={{ width: '100%' }} />
+                    </div>
+                </div>
+            )}
+
+            {status === 'error' && (
+                <div className="space-y-4">
+                    <AlertCircle className="mx-auto text-rose-500" size={48} />
+                    <h2 className="text-xl font-bold text-slate-800">Sync Pipeline Blocked</h2>
+                    <p className="text-sm text-rose-500 bg-rose-50 border border-rose-100 p-3 rounded-xl font-medium">
+                        {errorMessage}
+                    </p>
+                    <button
+                        onClick={() => router.push('/')}
+                        className="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-2.5 rounded-xl text-sm transition"
+                    >
+                        Return to Dashboard
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// 2. Keep the main default export as the wrapper containing the Suspense Boundary
+export default function BillingSuccessPage() {
+    return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center animate-fade-in">
-                {status === 'verifying' && (
-                    <div className="space-y-4">
-                        <Loader2 className="mx-auto text-indigo-600 animate-spin" size={48} />
-                        <h2 className="text-xl font-bold text-slate-800">Verifying Payment...</h2>
-                        <p className="text-sm text-slate-500">
-                            Securing your transaction assets and provisioning your workspace account.
-                        </p>
+            <Suspense
+                fallback={
+                    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center flex flex-col items-center justify-center space-y-4">
+                        <Loader2 className="text-indigo-600 animate-spin" size={48} />
+                        <h2 className="text-xl font-bold text-slate-800">Loading checkout details...</h2>
                     </div>
-                )}
-
-                {status === 'success' && (
-                    <div className="space-y-4">
-                        <CheckCircle className="mx-auto text-emerald-500 animate-bounce" size={48} />
-                        <h2 className="text-2xl font-bold text-slate-800">Payment Successful!</h2>
-                        <p className="text-sm text-slate-500">
-                            Your workspace layout is updated. Redirecting to your main dashboard space...
-                        </p>
-                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                            <div className="bg-emerald-500 h-full animate-[loading-bar_3s_ease-out-forwards]" style={{ width: '100%' }} />
-                        </div>
-                    </div>
-                )}
-
-                {status === 'error' && (
-                    <div className="space-y-4">
-                        <AlertCircle className="mx-auto text-rose-500" size={48} />
-                        <h2 className="text-xl font-bold text-slate-800">Sync Pipeline Blocked</h2>
-                        <p className="text-sm text-rose-500 bg-rose-50 border border-rose-100 p-3 rounded-xl font-medium">
-                            {errorMessage}
-                        </p>
-                        <button
-                            onClick={() => router.push('/')}
-                            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-2.5 rounded-xl text-sm transition"
-                        >
-                            Return to Dashboard
-                        </button>
-                    </div>
-                )}
-            </div>
+                }
+            >
+                <BillingSuccessContent />
+            </Suspense>
         </div>
     );
 }
