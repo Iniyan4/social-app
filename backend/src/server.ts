@@ -19,7 +19,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/social
 // 2. FIXED: Restricted CORS configuration to safe origins instead of permissive defaults
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:3000', 'http://localhost:5000'];
+    : ['http://localhost:3000', 'http://localhost:5000', 'https://social-app-zeta-livid.vercel.app'];
 
 app.use(cors({
     origin: allowedOrigins,
