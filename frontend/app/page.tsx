@@ -30,67 +30,70 @@ export default function Home() {
     const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
     const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState(false);
 
+    // Get the centralized API Base URL from environment variables
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
     // Safely look up the dictionary key by casting the string representation
     const activeLanguageCode = (((user as any)?.language as string) || 'en') as keyof typeof localizationDictionary;
     const dictionary = localizationDictionary[activeLanguageCode] || localizationDictionary.en;
 
     const fetchFeed = useCallback(async () => {
+        if (!API_BASE_URL) return;
         try {
-            const res = await fetch('http://127.0.0.1:5000/api/posts');
+            const res = await fetch(`${API_BASE_URL}/posts`);
             if (res.ok) setPosts(await res.json());
         } catch (err) {
             console.error(err);
         }
-    }, []);
+    }, [API_BASE_URL]);
 
     const fetchQuestions = useCallback(async () => {
+        if (!API_BASE_URL) return;
         try {
-            const res = await fetch('http://127.0.0.1:5000/api/questions');
+            const res = await fetch(`${API_BASE_URL}/questions`);
             if (res.ok) setQuestions(await res.json());
         } catch (err) {
             console.error(err);
         }
-    }, []);
+    }, [API_BASE_URL]);
 
     const fetchFriends = useCallback(async () => {
-        if (!token) return;
+        if (!token || !API_BASE_URL) return;
         try {
-            const res = await fetch('http://127.0.0.1:5000/api/friends/list', {
+            const res = await fetch(`${API_BASE_URL}/friends/list`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) setFriends(await res.json());
         } catch (err) {
             console.error(err);
         }
-    }, [token]);
+    }, [token, API_BASE_URL]);
 
-// Locate the synchronization logic inside src/app/page.tsx and replace it with this version:
-
-    // Ensure the background syncing function in src/app/page.tsx matches this layout format exactly:
+    // Ensure the background syncing function matches this layout format exactly:
     const fireHeartbeatAndSync = useCallback(async () => {
-        if (!token) return;
+        if (!token || !API_BASE_URL) return;
         try {
             // Asynchronously dispatch the heartbeat ping ahead of data fetches
-            fetch('http://127.0.0.1:5000/api/auth/heartbeat', {
+            fetch(`${API_BASE_URL}/auth/heartbeat`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             }).catch(() => {/* Handle silent connection drop safely */});
 
-            // Fetch remaining structural component streams via standard IPv4 configurations
-            const feedRes = await fetch('http://127.0.0.1:5000/api/posts');
+            // Fetch remaining structural component streams via standard environment configurations
+            const feedRes = await fetch(`${API_BASE_URL}/posts`);
             if (feedRes.ok) setPosts(await feedRes.json());
 
-            const qRes = await fetch('http://127.0.0.1:5000/api/questions');
+            const qRes = await fetch(`${API_BASE_URL}/questions`);
             if (qRes.ok) setQuestions(await qRes.json());
 
-            const friendRes = await fetch('http://127.0.0.1:5000/api/friends/list', {
+            const friendRes = await fetch(`${API_BASE_URL}/friends/list`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (friendRes.ok) setFriends(await friendRes.json());
         } catch (e) {
             console.error("Connection stream synchronization suspended: ", e);
         }
-    }, [token]);
+    }, [token, API_BASE_URL]);
 
     useEffect(() => {
         if (token) {
